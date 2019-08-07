@@ -1,6 +1,8 @@
-import {React} from 'react'
-import {View} from 'react-native'
-import {Camera, BarCodeScanner, Permissions} from 'expo'
+import React from 'react'
+import {View, StyleSheet, Text} from 'react-native'
+import { BarCodeScanner } from 'expo-barcode-scanner'
+import * as Permissions from 'expo-permissions'
+
 
 export class Barcode extends React.Component{
 
@@ -10,7 +12,7 @@ export class Barcode extends React.Component{
     }
 
     componentDidMount(){
-        this.getPermissionsAsync
+        this.getPermissionsAsync()
     }
 
     getPermissionsAsync = async () => {
@@ -29,7 +31,7 @@ export class Barcode extends React.Component{
         }
 
         return(
-            <View>
+            <View style={{flex:1}}>
                         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : this.handleBarCodeScanned}
           style={StyleSheet.absoluteFillObject}
