@@ -1,17 +1,20 @@
 import React from 'react'
 import {View, StyleSheet, Image, Text} from 'react-native'
+import { fetchCover } from '../config/fetchcover'
 import {
     heightPercentageToDP as h,
     widthPercentageToDP as w
   } from "react-native-responsive-screen";
 import {Icon} from 'react-native-elements'
+import { ScrollView } from 'react-native-gesture-handler';
 
 export class Ratings extends React.Component{
 
     state = {
         ratings: [],
         isbn: "",
-        title: "Nora Robert"
+        title: "Nora Robert",
+        thumbnailUrl: ''
     }
 
     componentDidMount(){
@@ -21,23 +24,23 @@ export class Ratings extends React.Component{
         const {title, sub_title, release_date, author, genre} = ratings.book
         this.setState({title: title, subtitle: sub_title, releaseDate: release_date, genre: genre, author: author})
         this.setState({isbn: this.props.navigation.getParam('isbn', "")})
-        const isbn = this.props.navigation.getParam('isbn', "")
-        console.warn(`http://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`)
+        this.fetchCover()
     }
 
     render(){
-        const {ratings, isbn, title, subtitle, author, releaseDate, genre} = this.state
+        const {ratings, isbn, title, subtitle, author, releaseDate, genre, thumbnailUrl} = this.state
         return(
             <View style={styles.container}>
-                <View style={{flexDirection:'row'}}>
-                <Image resizeMode="stretch" style={styles.image} source={{uri: `http://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`}} />
+                
+                <Image resizeMode="stretch" style={styles.image} source={{uri: `${ thumbnailUrl }`}} />
                 <View>
-                <Text style={{color:'black', fontSize: w('5%')}}>Author: {author}</Text>
-                <Text style={{color: 'black', fontSize: w('5.5%')}} >Genre: {genre}</Text>
-                <Text numberOfLines={3} style={{color: 'black', fontSize: w('5.5%'), width: w('40%')}} >Title: {title}{subtitle}</Text>
-                <Text style={{fontSize: w('5.5%')}} >Released: {releaseDate}</Text>
+
+                <Text style={{color:'black', fontSize: w('4.5%')}}><Text style={{fontWeight:'600'}} >Author:</Text> {author}</Text>
+                <Text style={{color: 'black', fontSize: w('4.5%')}} ><Text style={{fontWeight:'600'}} >Genre:</Text> {genre}</Text>
+                <Text numberOfLines={3} style={{color: 'black', fontSize: w('4.5%')}} ><Text style={{fontWeight:'600'}} >Title:</Text> {title}{subtitle}</Text>
+                <Text style={{fontSize: w('4.5%')}} ><Text style={{fontWeight:'600'}} >Released:</Text> {releaseDate}</Text>
                 </View>
-                </View>
+                
                 
                 {
                     ratings.map((rating, key)=>{
@@ -51,22 +54,31 @@ export class Ratings extends React.Component{
             </View>
         )
     }
+
+    fetchCover = async()=>{
+        const isbn = this.props.navigation.getParam('isbn', "")
+
+        const imageUrl = await fetchCover(isbn)
+        this.setState({thumbnailUrl: imageUrl})
+    }
 }
 
 SingleRating = props => {
 
     return(
-        <View >
+        <View style= {{flexDirection:'row'}} >
             {[0,1,2,3,4,5].map((star, i)=>{
+                console.warn(props.rating)
                 return(
-                    <View key={i}>
+                    
                         <Icon 
+                            key={i}
                             size={w('5%')} 
-                            color={props.star_rating >= i? 'black': "white"} 
+                            color={props.rating >= i? 'black': "white"} 
                             name="ios-star" 
                             type='ionicon' 
-                        />
-                    </View>
+                        ></Icon>
+                    
                 )
             })}
         </View>
@@ -79,15 +91,15 @@ const styles = StyleSheet.create({
         flex:1,
         backgroundColor: 'rgb(126, 249, 255)',
         justifyContent: 'flex-start',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         padding: w('4.5%')
     },
     starView:{
         flexDirection: 'row'
     },
     image:{
-        width: w('40%'),
-        height: h('40%'),
+        width: w('20%'),
+        height: h('15%'),
         margin: w('2.5%')
     }
 })
